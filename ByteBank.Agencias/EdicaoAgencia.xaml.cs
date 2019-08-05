@@ -1,6 +1,9 @@
 ﻿using ByteBank.Agencias.DAL;
 using System;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace ByteBank.Agencias
 {
@@ -31,10 +34,14 @@ namespace ByteBank.Agencias
 
         private void AtualizarControles()
         {
-            var okEventHandler = (RoutedEventHandler)btnOk_Click + Fechar;
+            RoutedEventHandler DialogResultTrue = (o, e) => DialogResult = true;
+
+            RoutedEventHandler DialogResultFalse = (o, e) => DialogResult = false;
+
+            var okEventHandler = DialogResultTrue + Fechar;
             var cancelarEventHandler =
                 (RoutedEventHandler)Delegate.Combine(
-                    (RoutedEventHandler)btnCancelar_Click,
+                    DialogResultFalse,
                     (RoutedEventHandler)Fechar);
 
             btnOk.Click += new RoutedEventHandler(okEventHandler);
@@ -42,12 +49,33 @@ namespace ByteBank.Agencias
 
             btnOk.Click += new RoutedEventHandler(Fechar);
             btnCancelar.Click += new RoutedEventHandler(Fechar);
+
+            txtNome.TextChanged += ValidateInputText;
+            txtEndereco.TextChanged += ValidateInputText;
+            txtDescricao.TextChanged += ValidateInputText;
+            txtNumero.TextChanged += ValidateOnlyNumbers;
+            txtTelefone.TextChanged += ValidateInputText;
         }
 
-        private void btnOk_Click(object sender, EventArgs e) => DialogResult = true;
+        private void ValidateOnlyNumbers(object sender, TextChangedEventArgs e)
+            => (sender as TextBox).Background =
+                string.IsNullOrEmpty((sender as TextBox).Text)
+                    ? new SolidColorBrush(Colors.OrangeRed)
+#pragma warning disable S3358 // Ternary nested !!!
+                    : (sender as TextBox)
+                        .Text
+                        .All(char.IsDigit)
+                            ? new SolidColorBrush(Colors.White)
+                            : new SolidColorBrush(Colors.OrangeRed);
+#pragma warning restore S3358 // Ternary nested !!!
 
-        private void btnCancelar_Click(object sender, EventArgs e) => DialogResult = false;
+        private void ValidateInputText(object o, EventArgs e)
+            => (o as TextBox)
+                .Background = string.IsNullOrEmpty((o as TextBox).Text)
+                    ? new SolidColorBrush(Colors.OrangeRed)
+                    : new SolidColorBrush(Colors.White);
 
-        private void Fechar(object sender, EventArgs e) => Close();
+        private void Fechar(object sender, EventArgs e)
+            => Close();
     }
 }
