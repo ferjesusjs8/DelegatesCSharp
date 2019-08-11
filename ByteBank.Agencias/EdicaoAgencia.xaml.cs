@@ -50,30 +50,19 @@ namespace ByteBank.Agencias
             btnOk.Click += new RoutedEventHandler(Fechar);
             btnCancelar.Click += new RoutedEventHandler(Fechar);
 
-            txtNome.TextChanged += ValidateInputText;
-            txtEndereco.TextChanged += ValidateInputText;
-            txtDescricao.TextChanged += ValidateInputText;
-            txtNumero.TextChanged += ValidateOnlyNumbers;
-            txtTelefone.TextChanged += ValidateInputText;
+            txtNome.Validacao += ValidateInputText;
+            txtEndereco.Validacao += ValidateInputText;
+            txtDescricao.Validacao += ValidateInputText;
+            txtNumero.Validacao += ValidateOnlyNumbers;
+            txtTelefone.Validacao += ValidateInputText;
         }
 
-        private void ValidateOnlyNumbers(object sender, TextChangedEventArgs e)
-            => (sender as TextBox).Background =
-                string.IsNullOrEmpty((sender as TextBox).Text)
-                    ? new SolidColorBrush(Colors.OrangeRed)
-#pragma warning disable S3358 // Ternary nested !!!
-                    : (sender as TextBox)
-                        .Text
-                        .All(char.IsDigit)
-                            ? new SolidColorBrush(Colors.White)
-                            : new SolidColorBrush(Colors.OrangeRed);
-#pragma warning restore S3358 // Ternary nested !!!
+        private bool ValidateOnlyNumbers(string texto)
+            => ValidateInputText(texto)
+                && texto.All(char.IsDigit);
 
-        private void ValidateInputText(object o, EventArgs e)
-            => (o as TextBox)
-                .Background = string.IsNullOrEmpty((o as TextBox).Text)
-                    ? new SolidColorBrush(Colors.OrangeRed)
-                    : new SolidColorBrush(Colors.White);
+        private bool ValidateInputText(string texto)
+            => !string.IsNullOrWhiteSpace(texto);
 
         private void Fechar(object sender, EventArgs e)
             => Close();
